@@ -10,7 +10,6 @@ __copyright__ = "Copyright 2018, Northern Arizona University, Flagstaff AZ"
 
 
 import scipy.spatial as graph
-import numpy as np
 
 class Node:
 

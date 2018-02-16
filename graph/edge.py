@@ -9,7 +9,6 @@ __copyright__ = "Copyright 2018, Northern Arizona University, Flagstaff AZ"
 
 import numpy as np
 import scipy.spatial as graph
-import matplotlib.pyplot as plt
 
 class Edge:
 
