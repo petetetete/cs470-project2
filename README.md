@@ -1,4 +1,4 @@
-# Program 2 - Fred Flintstone Problem Solving
+# Program 2 - RoadWarrior Meets Google Maps
 
 A demonstration of search algorithms.
 
