@@ -2,16 +2,18 @@
 __author__ = "Peter Huettl"
 
 # Imports
-from graph import GraphViz
+# from graph import GraphViz
 
 
 class GraphSearch:
 
-  def __init__(self, graph_file):
-    self.test = "ASDF"
+  graph = None
 
+  def __init__(self, graph_file):
+
+    # Load file if parameter is present
     if graph_file is not None:
-      self.load_graph(graph_file)
+      self.graph = self.load_graph(graph_file)
 
   def load_graph(self, file_name):
 

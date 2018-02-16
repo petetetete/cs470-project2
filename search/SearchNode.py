@@ -11,3 +11,6 @@ class SearchNode:
   def __init__(self, label, value):
     self.label = label
     self.value = value
+
+  def __str__(self):
+    return "(" + self.label + ", " + str(self.value) + ")"
