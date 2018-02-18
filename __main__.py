@@ -13,4 +13,8 @@ import sys
 # g.markStart("U")
 # g.markGoal("T")
 
-print(sys.argv)
+x = GraphSearch("test_data/30.txt")
+x.set_start("U")
+x.set_start("T")
+
+# print(sys.argv)
