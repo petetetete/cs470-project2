@@ -14,5 +14,6 @@ class GraphNode:
   def add_edge(self, graph_node):
     self.edges = self.edges + [graph_node]
 
+  # To string method
   def __repr__(self):
     return self.label
