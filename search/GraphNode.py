@@ -12,7 +12,7 @@ class GraphNode:
     self.y_coord = y_coord
 
   def add_edge(self, graph_node):
-    self.edges.append(graph_node)
+    self.edges = self.edges + [graph_node]
 
   def __repr__(self):
     return self.label
