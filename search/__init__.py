@@ -1,5 +1,5 @@
 # Provide classes from module
 from .GraphSearch import GraphSearch
-from .SearchNode import SearchNode
+from .Heuristics import hSLD
 
-__all__ = ["GraphSearch", "SearchNode"]
+__all__ = ["GraphSearch", "hSLD"]

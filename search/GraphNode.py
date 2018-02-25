@@ -16,4 +16,4 @@ class GraphNode:
 
   # To string method
   def __repr__(self):
-    return self.label
+    return "'" + self.label + "'"
