@@ -14,7 +14,7 @@ def hSLD(self, graph_node):
 
 # Test GraphSearch
 
-gs = GraphSearch("BREADTH", "test_data/10.txt")
+gs = GraphSearch("BREADTH", "test_data/10.txt", True)
 gs.set_start("f")
 gs.set_goal("d")
 gs.go()
@@ -50,8 +50,8 @@ gs.go()
 # print("\nStraight Line Distance Heuristic Tests")
 
 # print("V:", end=" ")
-# gs.hSLD(gs.find_node("V"))
+# gs.hSLD(gs.__find_node("V"))
 # print("AC:", end=" ")
-# gs.hSLD(gs.find_node("AC"))
+# gs.hSLD(gs.__find_node("AC"))
 # print("J:", end=" ")
-# gs.hSLD(gs.find_node("J"))
+# gs.hSLD(gs.__find_node("J"))
