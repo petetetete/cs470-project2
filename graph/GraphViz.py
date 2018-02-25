@@ -92,7 +92,8 @@ class GraphViz:
         # Now plot in the edges
         for edge in self.edges:
             plt.plot([edge.x1, edge.x2], [edge.y1, edge.y2], 'b-', color='k', linewidth=0.5)  # make the lines
-            plt.text(edge.midx, edge.midy, edge.dist, size='x-small')  # label the edge at its midpoint
+            plt.text(edge.midx, edge.midy, edge.label, size='x-small')  # label the edge at its midpoint
+            self.paintGraph()
 
 
     # Takes in start node label, and repaints that node as start (ie, different node shape and green)
@@ -230,6 +231,6 @@ class GraphViz:
 
 # unit testing MAin function
 
-#x=GraphViz()
-#x.loadGraphFromFile("testfile.txt")
+# x=GraphViz()
+# x.loadGraphFromFile("testfile.txt")
 #t="('C', 'H', 32, [79, 94], [103, 72], [91.0, 83.0])"

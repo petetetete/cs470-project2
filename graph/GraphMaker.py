@@ -84,7 +84,7 @@ class GraphMaker:
         for edge in self.edges:
             if edge.connects(node1,node2):  # whack the edge
                 plt.plot([edge.x1, edge.x2], [edge.y1, edge.y2], 'b-', color='w', linewidth=0.5)  # make the lines
-                plt.text(edge.midx, edge.midy, edge.dist, size='x-small', color='w')  # label the edge at its midpoint
+                plt.text(edge.midx, edge.midy, edge.label, size='x-small', color='w')  # label the edge at its midpoint
                 plt.pause(0.05)
             else: newEdges.append(edge)
         self.edges=newEdges
@@ -101,10 +101,10 @@ class GraphMaker:
         if p1!=0 and p2!=0:    # both nodes exist
             print("building edge!")
             edge=Edge(p1,p2)
-            edge.setLabels(node1,node2)
+            edge=Edge(p1,p2, self.distDistortion)  # make a new edge
             self.edges.append(edge)
             plt.plot([edge.x1, edge.x2], [edge.y1, edge.y2], 'b-', color='k', linewidth=0.5)  # make the lines
-            plt.text(edge.midx, edge.midy, edge.dist, size='x-small',color='k')  # label the edge at its midpoint
+            plt.text(edge.midx, edge.midy, edge.label, size='x-small',color='k')  # label the edge at its midpoint
         else: print("start or end node doesn't exist")
 
 
@@ -174,7 +174,7 @@ class GraphMaker:
         # Now plot in the edges
         for edge in self.edges:
             plt.plot([edge.x1,edge.x2],[edge.y1,edge.y2], 'b-', color='k', linewidth=0.5) # make the lines
-            plt.text(edge.midx,edge.midy,edge.dist, size='x-small')  # label the edge at its midpoint
+            plt.text(edge.midx,edge.midy,edge.label, size='x-small')  # label the edge at its midpoint
 
 
 
@@ -257,5 +257,5 @@ class GraphMaker:
 
 ### UNIT TESTING
 
-#x=GraphMaker(20)
-#x.plot()
+# x=GraphMaker(20)
+# x.plot()

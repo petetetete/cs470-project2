@@ -9,21 +9,26 @@ from .GraphNode import GraphNode
 
 class GraphSearch:
 
+  search_type = None
   graph = []
   graph_viz = None
   verbose = False
   open_list = []
   start_node = None
-  end_node = None
+  goal_node = None
 
-  def __init__(self, graph_file=None):
+  def __init__(self, search_type="BREADTH", graph_file=None, heuristic=None):
 
-    # Initialize visualizer
+    # Initialize variables
+    self.search_type = search_type
+    self.heuristic = heuristic
     self.graph_viz = GraphViz()
 
     # Load file if parameter is present
     if graph_file is not None:
       self.load_graph(graph_file)
+
+    print("Loaded search type", search_type)
 
   # Load graph file into search
   def load_graph(self, file_name):
@@ -47,20 +52,22 @@ class GraphSearch:
       [n1, n2, ev, x1, y1, x2, y2] = line.split(",")
 
       # Get or create node 1
-      node1 = self.__find_node(n1)
+      node1 = self.find_node(n1)
       if node1 is None:
         node1 = GraphNode(n1, x1, y1)
         self.graph.append(node1)
 
       # Get or create node 2
-      node2 = self.__find_node(n2)
+      node2 = self.find_node(n2)
       if node2 is None:
         node2 = GraphNode(n2, x2, y2)
         self.graph.append(node2)
 
       # Add edges to the nodes
-      node1.add_edge((node2, int(ev)))
-      node2.add_edge((node1, int(ev)))
+      node1.add_edge(node2, ev)
+      node2.add_edge(node1, ev)
+
+    print("Loaded map in file", file_name)
 
   # Print the open list
   def show_open(self):
@@ -69,13 +76,15 @@ class GraphSearch:
   # Set the starting node of the graph
   def set_start(self, label):
 
+    label = label.upper()  # Ensure label is capitalized
+
     # Catch unloaded graph error
     if self.graph is None:
       print("Error: Graph is not loaded")
       return
 
     # Find specified node
-    node = self.__find_node(label)
+    node = self.find_node(label)
     if node is None:
       print("Error: Unable to find starting node label")
       return
@@ -88,19 +97,21 @@ class GraphSearch:
   # Set the goal node of the graph
   def set_goal(self, label):
 
+    label = label.upper()  # Ensure label is capitalized
+
     # Catch unloaded graph error
     if self.graph is None:
       print("Error: Graph is not loaded")
       return
 
     # Find specified node
-    node = self.__find_node(label)
+    node = self.find_node(label)
     if node is None:
       print("Error: Unable to find ending node label")
       return
 
     # Set member variables
-    self.end_node = node
+    self.goal_node = node
     self.graph_viz.markGoal(label)
 
   # Method used to insert nodes into the open list
@@ -121,14 +132,20 @@ class GraphSearch:
   def generate_successors(self, search_node):
 
     # Find graph node and create list of new nodes
-    graph_node = self.__find_node(search_node.label)
+    graph_node = self.find_node(search_node.label)
     new_nodes = sorted(SearchNode(e[0].label, search_node.value + e[1])
                        for e in graph_node.edges)
 
     return new_nodes
 
-  # Helper methods
-
   # Method to find a node in the graph
-  def __find_node(self, label):
+  def find_node(self, label):
     return next((node for node in self.graph if node.label == label), None)
+
+  # Execute the search!
+  def go(self):
+
+    # Initial kick off print
+    print(self.search_type, "search: from",
+          self.start_node.label, "to", self.goal_node.label)
+    return

@@ -28,16 +28,14 @@ class Edge:
         self.midy = abs(p1[1] - p2[1]) / 2 + min(p1[1], p2[1])
         self.endlabel1=""
         self.endlabel2=""
+        self.label=0  # holds the actual edge value of the edge.  Calc'd by distorting the distance
+        
         # if a distortion was passed in, randomly distort edge length appropriately.
         if label==0: self.label=self.dist  # default.  Edge label is its length
         elif label<1: # label was a distortion percentage. randomly calc length based on it.
             adjust=self.dist*label
-            distortion= np.random.randn()*adjust
-            # randomly adjust the labeled distance to be longer/shorter than using the distortion
-            #if (np.random.random() < 0.5): self.label=int(self.dist - distortion) # randomly add/subtract the adjustment
-            #else: self.label=int(self.dist + distortion)
-            # # Commented out above. For graphs of road networks, the labeled dist is ALWAYS longer, never shorter than SLD
-            self.label = int(self.dist + distortion)
+            distortion= np.random.random()*adjust   # randomly take some percentage of the adjustment range
+            self.label = int(self.dist + distortion) # adds on distortion.  Roads are ALWAYS longer than SLD
         else: self.label=label # label was an actual number you want on the edge
 
     def get(self):
