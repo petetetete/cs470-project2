@@ -10,13 +10,15 @@ from .GraphNode import GraphNode
 class GraphSearch:
 
   def __init__(self, search_type="BREADTH", graph_file=None,
-               verbose=False, heuristic=None):
+               heuristic=None, verbose=False, viz_enabled=True):
 
     # Initialize variables
-    self.graph_viz = GraphViz()
+    self.graph_viz = GraphViz() if viz_enabled else None
     self.search_type = search_type
     self.verbose = verbose
-    self.heuristic = heuristic
+    self.viz_enabled = viz_enabled
+    self.heuristic = heuristic if (search_type == "A*" and
+                                   heuristic) else lambda a, b: 0
 
     self.graph = []
     self.open_list = []
@@ -27,6 +29,7 @@ class GraphSearch:
 
     # Stats
     self.frontier_sizes = []
+    self.explore_depths = []
     self.branching_sizes = []
 
     # Load file if parameter is present
@@ -38,10 +41,11 @@ class GraphSearch:
   # Load graph file into search
   def load_graph(self, file_name):
 
-    # Initialize viz
-    self.graph_viz.loadGraphFromFile(file_name)
-    self.graph_viz.plot()
+    # Save graph file name and initialize viz (if requested)
     self.graph_file = file_name
+    if self.viz_enabled:
+      self.graph_viz.loadGraphFromFile(file_name)
+      self.graph_viz.plot()
 
     # Get file contents
     with open(file_name) as file:
@@ -97,7 +101,8 @@ class GraphSearch:
 
     # Set member variables
     self.start_node = node
-    self.graph_viz.markStart(label)
+    if self.viz_enabled:
+      self.graph_viz.markStart(label)
     self.__insert_nodes([SearchNode(label)])  # Insert initial search node
 
   # Set the goal node of the graph
@@ -118,21 +123,52 @@ class GraphSearch:
 
     # Set member variables
     self.goal_nodes.append(node)
-    self.graph_viz.markGoal(label)
+    if self.viz_enabled:
+      self.graph_viz.markGoal(label)
 
   # Method used to insert nodes into the open list
-  def __insert_nodes(self, search_nodes, type="front"):
+  def __insert_nodes(self, search_nodes):
 
-    skip_labels = [n.label for n in self.open_list] + self.expansion_history
-    search_nodes = [n for n in search_nodes if n.label not in skip_labels]
+    # Exclude nodes that have already been expanded
+    search_nodes = [n for n in search_nodes
+                    if n.label not in self.expansion_history]
 
-    if type == "front":
-      self.open_list = search_nodes + self.open_list
-    elif type == "back":
+    if self.search_type == "BREADTH":
+
+      # Prioritize labels in the open_list already
+      skip_labels = [n.label for n in self.open_list]
+      search_nodes = [n for n in search_nodes if n.label not in skip_labels]
+
+      # Add to the back of the list
       self.open_list = self.open_list + search_nodes
-    else:  # "order"
+
+    elif self.search_type == "DEPTH":
+
+      # Prioritize newly added labels
+      skip_labels = [n.label for n in search_nodes]
+      open_list = [n for n in self.open_list if n.label not in skip_labels]
+
+      # Add to the front of the list
+      self.open_list = search_nodes + open_list
+
+    else:
+
+      # Add new nodes to the open list and sort on value
       self.open_list = sorted(search_nodes + self.open_list,
                               key=lambda n: n.value)
+
+      # Trim trailing duplicates from the open_list (the worse nodes)
+      seen = {}
+      for node in reversed(self.open_list):
+        if node.label not in seen:
+          seen[node.label] = node
+        else:
+          self.open_list.remove(seen[node.label])
+          # TODO: This adds support for > 2 possible duplicates
+          # seen[node.label] = node
+
+    if self.verbose:
+      print("Inserting new children:", [n.label for n in search_nodes])
 
   # Method used to generate all successor nodes of a search node
   def __generate_successors(self, search_node):
@@ -141,19 +177,19 @@ class GraphSearch:
     graph_node = self.__find_node(search_node.label)
     new_nodes = []
 
-    # TODO: Consider
-    # history_labels = [n.label for n in search_node.path_history]
-    # new_edges = [n for n in graph_node.edges if n[0].label
-    #              not in history_labels]
-
-    # Create new SearchNodes and append past node's history
     for edge in graph_node.edges:
-      node = SearchNode(edge[0].label, search_node.depth + 1,
-                        search_node.path_cost + edge[1])
+
+      # Calculate new node metrics
+      depth = search_node.depth + 1
+      path_cost = search_node.path_cost + edge[1]
+      heuristic_cost = self.heuristic(edge[0], self.goal_nodes)
+
+      # Create new node and udate history
+      node = SearchNode(edge[0].label, depth, path_cost, heuristic_cost)
       node.path_history = search_node.path_history + [search_node]
       new_nodes.append(node)
 
-    return sorted(new_nodes)
+    return sorted(new_nodes)  # Sort alphabetically
 
   # Method to find a node in the graph
   def __find_node(self, label):
@@ -168,6 +204,9 @@ class GraphSearch:
     frontier_average = round(sum(self.frontier_sizes) /
                              len(self.frontier_sizes), 2)
     frontier_max = max(self.frontier_sizes)
+    depth_average = round(sum(self.explore_depths) /
+                          len(self.explore_depths), 2)
+    depth_max = max(self.explore_depths)
     branching_average = round(sum(self.branching_sizes) /
                               len(self.branching_sizes), 2)
 
@@ -175,18 +214,20 @@ class GraphSearch:
     print("------------------------")
     print("SEARCH SUMMARY STATS:")
     print("Search Type:", self.search_type + ".",
-          "Map file:", self.graph_file,
+          "Map File:", self.graph_file,
           "Total Nodes in Graph:", node_count)
-    print("Start node:", self.start_node.label,
+    print("Start Node:", self.start_node.label,
           "; Goal node(s):", self.goal_nodes)
     print("Searched total of", expand_count,
           "nodes out of total", node_count, "in graph")
     print("Ended at Node:", end_node.label,
           "with path cost:", end_node.path_cost)
     print("Path (" + str(len(short_history)) + "):", short_history)
-    print("Frontier size: Average =", frontier_average,
-          "; Max Depth =", frontier_max)
-    print("Average branching factor =", branching_average)
+    print("Frontier Size: Average =", frontier_average,
+          "; Max Size =", frontier_max)
+    print("Depth of Search: Average =", depth_average,
+          "; Max Depth =", depth_max)
+    print("Average Branching Factor =", branching_average)
     print("Order of Node Expansion:", self.expansion_history)
 
   # Execute the search!
@@ -202,9 +243,13 @@ class GraphSearch:
       # Get the current node to explore
       explore_node = self.open_list.pop(0)
 
+      if self.verbose:  # Print out the node to be explored
+        print("Exploring node:", explore_node.label)
+
       # Update stats
       self.expansion_history.append(explore_node.label)
       self.frontier_sizes.append(len(self.open_list))
+      self.explore_depths.append(explore_node.depth)
 
       # We found the goal
       if any(n.label == explore_node.label for n in self.goal_nodes):
@@ -214,9 +259,7 @@ class GraphSearch:
       # Generate and insert successors
       successors = self.__generate_successors(explore_node)
       self.branching_sizes.append(len(successors))
-      self.__insert_nodes(successors, "back")
+      self.__insert_nodes(successors)
 
-      # Provide feedback if verbose mode is enabled
-      if self.verbose:
-        print("Exploring node:", explore_node.label)
+      if self.verbose:  # Print out current open list
         print("Open list:", self.open_list)

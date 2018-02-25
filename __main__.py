@@ -6,15 +6,22 @@ from search import GraphSearch
 
 
 # Straight light distance heuristic
-def hSLD(self, graph_node):
-  a = (graph_node.x_coord, graph_node.y_coord, 1)
-  b = (self.goal_node.x_coord, self.goal_node.y_coord, 1)
-  print(((a[0] - b[0])**2 + (a[1] - b[1])**2)**(1 / 2))
+def hSLD(graph_node, goal_nodes):
+
+  # Calculate the Straight Line Distance to each goal node
+  distances = []
+  for goal_node in goal_nodes:
+    a = (graph_node.x_coord, graph_node.y_coord, 1)
+    b = (goal_node.x_coord, goal_node.y_coord, 1)
+    distances.append(((a[0] - b[0])**2 + (a[1] - b[1])**2)**(1 / 2))
+
+  # Return the closest value
+  return min(distances)
 
 
 # Test GraphSearch
 
-gs = GraphSearch("BREADTH", "test_data/10.txt", True)
+gs = GraphSearch("BEST", "test_data/10.txt", hSLD, True, False)
 gs.set_start("f")
 gs.set_goal("d")
 gs.go()

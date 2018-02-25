@@ -16,9 +16,13 @@ class SearchNode:
   # To string method
   def __repr__(self):
     delim = ";".join([self.label, str(self.depth), str(self.path_cost),
-                      str(self.heuristic_cost), str(self.value)])
+                      str(round(self.heuristic_cost, 2)),
+                      str(round(self.value, 2))])
     return "'" + delim + "'"
 
-  # Method used for comparison of search nodes
+  # Method used to sort SearchNodes alphabetically
   def __lt__(self, other):
     return self.label < other.label
+
+  def __eg__(self, other):
+    return self.label == other.label
