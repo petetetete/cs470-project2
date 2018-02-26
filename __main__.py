@@ -8,7 +8,7 @@ from search import Heuristics
 
 # Test GraphSearch
 
-gs = GraphSearch("DEPTH", "test_data/300.txt", Heuristics.hSLD, False, False)
-gs.set_start("DG")
-gs.set_goal("GR")
+gs = GraphSearch("DEPTH", "test_data/30.txt", Heuristics.hSLD, False, True)
+gs.set_start("AB")
+gs.set_goal("V")
 gs.go()
