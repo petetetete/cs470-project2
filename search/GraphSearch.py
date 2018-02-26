@@ -18,7 +18,7 @@ class GraphSearch:
     self.verbose = verbose
     self.viz_enabled = viz_enabled
     self.using_heuristic = search_type == "A*" and heuristic
-    self.heuristic = heuristic if self.using_heuristic else lambda a, b: 0
+    self.heuristic = heuristic if self.using_heuristic else lambda a, b, c: 0
 
     self.graph = []
     self.open_list = []
@@ -180,7 +180,7 @@ class GraphSearch:
       # Calculate new node metrics
       depth = search_node.depth + 1
       path_cost = search_node.path_cost + edge[1]
-      heuristic_cost = self.heuristic(edge[0], self.goal_nodes)
+      heuristic_cost = self.heuristic(graph_node, edge[0], self.goal_nodes)
 
       # Create new node and udate history
       node = SearchNode(edge[0].label, depth, path_cost, heuristic_cost)
@@ -215,7 +215,7 @@ class GraphSearch:
     print("SEARCH SUMMARY STATS:")
     print("Search Type:", self.search_type + ".",
           "Map File:", self.graph_file,
-          "Total Nodes in Graph:", node_count)
+          "(" + str(node_count), "total nodes)")
     if self.using_heuristic:
       print("Using h-function:", self.heuristic)
     print("Start Node:", self.start_node.label,
